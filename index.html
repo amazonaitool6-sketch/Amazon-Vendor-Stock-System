@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Vendor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f2f7;
+  --white: #ffffff;
+  --border: #e2e6ef;
+  --text: #1a1d2e;
+  --muted: #6b7280;
+  --light: #9ca3af;
+  --blue: #4f6ef7;
+  --blue-l: #eef0fe;
+  --green: #22c55e;
+  --green-l: #dcfce7;
+  --red: #ef4444;
+  --red-l: #fee2e2;
+  --orange: #f97316;
+  --orange-l: #fff7ed;
+  --purple: #8b5cf6;
+  --purple-l: #f5f3ff;
+  --yellow: #eab308;
+  --yellow-l: #fefce8;
+  --sidebar: #1e2540;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --r: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:224px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;overflow-y:auto;}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px;}
+.sb-logo-icon{width:36px;height:36px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.sb-logo-text{font-weight:800;font-size:0.87rem;color:#fff;line-height:1.3;}
+.sb-logo-sub{font-size:0.62rem;color:rgba(200,210,240,0.5);font-weight:400;}
+.sb-sec{padding:14px 12px 3px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(200,210,240,0.35);}
+.sb-item{margin:2px 8px;padding:9px 11px;border-radius:8px;display:flex;align-items:center;gap:9px;cursor:pointer;color:rgba(200,210,240,0.7);font-size:0.82rem;font-weight:500;transition:all 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.07);color:#fff;}
+.sb-item.active{background:var(--blue);color:#fff;font-weight:700;}
+.sb-item .ic{font-size:0.95rem;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;background:rgba(255,255,255,0.15);color:#fff;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:20px;}
+.sb-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06);color:rgba(200,210,240,0.3);font-size:0.67rem;}
+
+/* MAIN */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 26px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:var(--shadow);}
+.topbar-title{font-size:0.95rem;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:0.72rem;color:var(--muted);background:var(--bg);padding:4px 11px;border-radius:20px;border:1px solid var(--border);}
+.topbar-badge{background:var(--blue-l);color:var(--blue);font-size:0.68rem;font-weight:700;padding:4px 11px;border-radius:20px;}
+
+/* PAGES */
+.page{padding:22px 26px;display:none;}
+.page.active{display:block;}
+.page-header{margin-bottom:18px;}
+.page-header h1{font-size:1.25rem;font-weight:800;margin-bottom:3px;}
+.page-header p{color:var(--muted);font-size:0.8rem;}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px;transition:box-shadow 0.2s;}
+.stat-card:hover{box-shadow:var(--shadow-lg);}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.si-blue{background:var(--blue-l);} .si-orange{background:var(--orange-l);} .si-green{background:var(--green-l);} .si-purple{background:var(--purple-l);}
+.stat-label{font-size:0.68rem;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.stat-value{font-size:1.5rem;font-weight:800;line-height:1;margin-bottom:2px;}
+.sv-blue{color:var(--blue);} .sv-orange{color:var(--orange);} .sv-green{color:var(--green);} .sv-purple{color:var(--purple);}
+.stat-sub{font-size:0.63rem;color:var(--light);}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:7px;}
+.card-body{padding:18px;}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-blue{background:var(--blue);color:#fff;} .btn-blue:hover{background:#3b5be0;transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,110,247,0.3);}
+.btn-green{background:var(--green);color:#fff;} .btn-green:hover{background:#16a34a;transform:translateY(-1px);}
+.btn-orange{background:var(--orange);color:#fff;} .btn-orange:hover{background:#ea6c0a;transform:translateY(-1px);}
+.btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#dc2626;}
+.btn-ghost{background:var(--bg);color:var(--muted);border:1.5px solid var(--border);} .btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l);}
+.btn-sm{padding:5px 11px;font-size:0.7rem;}
+.btn-xs{padding:3px 8px;font-size:0.63rem;border-radius:6px;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-del{background:var(--red-l);color:var(--red);border:none;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.63rem;padding:3px 8px;border-radius:6px;cursor:pointer;transition:all 0.15s;}
+.btn-del:hover{background:var(--red);color:#fff;}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.fg-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+label{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+input,select,textarea{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:8px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.8rem;outline:none;transition:border-color 0.18s,box-shadow 0.18s;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,110,247,0.1);background:#fff;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.76rem;}
+thead{background:var(--bg);}
+th{padding:9px 13px;text-align:left;font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8f9ff;}
+.tr-return td{background:#fff9f5!important;}
+.tr-total td{background:var(--bg)!important;font-weight:700;}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;font-weight:700;}
+.b-blue{background:var(--blue-l);color:var(--blue);}
+.b-green{background:var(--green-l);color:#15803d;}
+.b-orange{background:var(--orange-l);color:var(--orange);}
+.b-red{background:var(--red-l);color:var(--red);}
+.b-purple{background:var(--purple-l);color:var(--purple);}
+.b-gray{background:#f3f4f6;color:#6b7280;}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2.5px dashed var(--border);border-radius:var(--r);padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:var(--blue-l);}
+.upload-icon{font-size:2.5rem;margin-bottom:12px;}
+.upload-title{font-size:1rem;font-weight:700;margin-bottom:6px;}
+.upload-sub{font-size:0.78rem;color:var(--muted);}
+.upload-note{font-size:0.7rem;color:var(--light);margin-top:8px;}
+
+/* INFO BOX */
+.info-box{background:var(--blue-l);border:1.5px solid #c7d2fe;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;font-size:0.75rem;color:#3730a3;margin-bottom:14px;}
+.warn-box{background:var(--orange-l);border:1.5px solid #fed7aa;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;font-size:0.75rem;color:#9a3412;margin-bottom:14px;}
+
+/* PREVIEW TABLE */
+.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.preview-title{font-size:0.82rem;font-weight:700;}
+
+/* RETURN MINUS */
+.minus-val{color:var(--orange);font-weight:700;}
+.minus-val::before{content:'− ';}
+.plus-val{color:var(--green);font-weight:700;}
+.net-val{color:var(--green);font-weight:800;}
+
+/* WEEK/MONTH GROUPED CARDS */
+.group-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden;}
+.group-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.group-header-blue{background:var(--blue-l);}
+.group-header-orange{background:#fff7ed;}
+.group-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.group-stats{display:flex;gap:16px;align-items:center;}
+.gs-item{text-align:right;}
+.gs-label{font-size:0.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.gs-val{font-size:0.95rem;font-weight:800;}
+
+/* REVENUE GRID */
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.rev-card{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.rev-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;}
+.rev-value{font-size:1.35rem;font-weight:800;}
+.rev-sub{font-size:0.6rem;color:var(--light);margin-top:2px;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,20,40,0.45);z-index:200;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border);}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);border-radius:16px 16px 0 0;}
+.modal-body{padding:20px;}
+.close-btn{width:28px;height:28px;border-radius:7px;background:var(--bg);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--muted);transition:all 0.15s;}
+.close-btn:hover{background:var(--red-l);color:var(--red);border-color:var(--red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;padding:11px 18px;border-radius:10px;font-size:0.8rem;font-weight:600;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.3s;box-shadow:var(--shadow-lg);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.green{background:var(--green);} .toast.red{background:var(--red);} .toast.orange{background:var(--orange);}
+
+/* FILTERS */
+.filters{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.filters input,.filters select{padding:6px 9px;font-size:0.73rem;}
+
+/* MONO */
+.mono{font-family:'JetBrains Mono',monospace;font-size:0.75rem;}
+
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr);}.main-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr;}.form-grid{grid-template-columns:1fr;}.rev-grid{grid-template-columns:1fr;}.page{padding:14px;}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">📦</div>
+    <div><div class="sb-logo-text">Amazon Vendor</div><div class="sb-logo-sub">Dashboard</div></div>
+  </div>
+  <div class="sb-sec">Main</div>
+  <div class="sb-item active" onclick="showPage('dashboard')"><span class="ic">🏠</span><span>Dashboard</span></div>
+  <div class="sb-item" onclick="showPage('upload')"><span class="ic">📂</span><span>Upload Sheet</span></div>
+  <div class="sb-item" onclick="showPage('records')"><span class="ic">📋</span><span>All Records</span><span class="sb-badge" id="sbCount">0</span></div>
+  <div class="sb-item" onclick="showPage('returns')"><span class="ic">↩</span><span>Log Return</span><span class="sb-badge" id="sbRetCount" style="background:rgba(249,115,22,0.4)">0</span></div>
+  <div class="sb-item" onclick="showPage('products')"><span class="ic">🗂</span><span>Products</span></div>
+  <div class="sb-sec">Reports</div>
+  <div class="sb-item" onclick="showPage('revenue')"><span class="ic">💰</span><span>Revenue</span></div>
+  <div class="sb-item" onclick="showPage('weekly')"><span class="ic">📅</span><span>Weekly View</span></div>
+  <div class="sb-item" onclick="showPage('monthly')"><span class="ic">🗓</span><span>Monthly View</span></div>
+  <div class="sb-footer"><div>Amazon Vendor Central</div><div style="margin-top:3px;">Sheet Upload & Returns v1.0</div></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">🏠 Dashboard Overview</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="currentDate"></div>
+      <div class="topbar-badge">VENDOR CENTRAL</div>
+    </div>
+  </div>
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon si-blue">📦</div><div><div class="stat-label">Total Units Sent</div><div class="stat-value sv-blue" id="dTotalSent">0</div><div class="stat-sub">All time dispatched</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-orange">↩</div><div><div class="stat-label">Total Returns</div><div class="stat-value sv-orange" id="dTotalRet">0</div><div class="stat-sub">All time returned</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-label">Net Units at Amazon</div><div class="stat-value sv-green" id="dNetUnits">0</div><div class="stat-sub">Sent − Returns</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-purple">💰</div><div><div class="stat-label">Net Revenue</div><div class="stat-value sv-purple" id="dNetRev">£0</div><div class="stat-sub">After returns deduction</div></div></div>
+    </div>
+
+    <!-- WORKFLOW BANNER -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">📋 Workflow</div></div>
+      <div class="card-body" style="padding:14px 18px;">
+        <div style="display:flex;align-items:center;overflow-x:auto;gap:0;padding-bottom:4px;">
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--blue-l);border:2px solid var(--blue);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">📂</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Upload Sheet</div><div style="font-size:0.56rem;color:var(--muted);">Products & Qty</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">📅</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Set Date</div><div style="font-size:0.56rem;color:var(--muted);">Shipment Date</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">📦</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Confirm Send</div><div style="font-size:0.56rem;color:var(--muted);">Units Dispatched</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--green-l);border:2px solid var(--green);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">🏬</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Amazon FC</div><div style="font-size:0.56rem;color:var(--muted);">Stock Received</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--orange-l);border:2px solid var(--orange);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">↩</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Returns</div><div style="font-size:0.56rem;color:var(--muted);">Units Returned</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--yellow-l);border:2px solid var(--yellow);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">➖</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Net Calc</div><div style="font-size:0.56rem;color:var(--muted);">Sent − Returns</div></div></div>
+          <div style="color:#c5cce0;padding:0 4px;font-size:1rem;flex-shrink:0;">›</div>
+          <div style="text-align:center;flex:1;min-width:80px;"><div style="background:var(--green-l);border:2px solid var(--green);border-radius:9px;padding:8px 4px;"><div style="font-size:1.1rem">💰</div><div style="font-size:0.65rem;font-weight:700;margin-top:2px;">Net Revenue</div><div style="font-size:0.56rem;color:var(--muted);">Net × Price</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT SHIPMENTS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🕐 Recent Activity</div>
+        <button class="btn btn-blue btn-sm" onclick="showPage('upload')">📂 Upload Sheet</button>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>SKU</th><th>Sent</th><th>Returns</th><th>Net Units</th><th>Net Revenue</th><th>Type</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ══ UPLOAD SHEET ══ -->
+  <div class="page" id="page-upload">
+    <div class="page-header"><h1>📂 Upload Product Sheet</h1><p>Upload your Excel or CSV file — system reads all product rows automatically</p></div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;" class="main-grid">
+      <div>
+        <!-- UPLOAD ZONE -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📁 Select File</div></div>
+          <div class="card-body">
+            <div class="info-box">💡 <div><strong>Supported formats:</strong> Excel (.xlsx, .xls) and CSV (.csv). Columns must be in order: Product Name, SKU, Unit Price, Qty to Send, Units Returned, Notes.</div></div>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+              <div class="upload-icon">📊</div>
+              <div class="upload-title" id="uploadTitle">Click to upload or drag & drop</div>
+              <div class="upload-sub">Excel (.xlsx, .xls) or CSV (.csv)</div>
+              <div class="upload-note">Columns: Product Name | SKU | Unit Price | Qty to Send | Units Returned | Notes</div>
+            </div>
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(event)">
+
+            <div id="previewSection" style="display:none;margin-top:18px;">
+              <div class="preview-header">
+                <div class="preview-title">📋 Preview — <span id="previewCount">0</span> products found</div>
+                <button class="btn btn-ghost btn-sm" onclick="clearUpload()">✕ Clear</button>
+              </div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead><tr><th>#</th><th>Product Name</th><th>SKU</th><th>Unit Price</th><th>Qty to Send</th><th>Units Returned</th><th>Net Units</th><th>Notes</th><th></th></tr></thead>
+                  <tbody id="previewBody"></tbody>
+                </table>
+              </div>
+              <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;display:flex;gap:20px;flex-wrap:wrap;" id="previewTotals"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHIPMENT DATE + CONFIRM -->
+        <div class="card" id="confirmCard" style="display:none;">
+          <div class="card-header"><div class="card-title">📅 Confirm Shipment</div></div>
+          <div class="card-body">
+            <div class="form-grid" style="max-width:500px;">
+              <div class="form-group">
+                <label>Shipment Date *</label>
+                <input type="date" id="uploadDate">
+              </div>
+              <div class="form-group">
+                <label>Batch Reference (optional)</label>
+                <input type="text" id="uploadBatch" placeholder="e.g. BATCH-2025-W03">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-green" onclick="confirmShipment()">✅ Confirm & Log Shipment</button>
+              <button class="btn btn-ghost" onclick="clearUpload()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMAT GUIDE -->
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📌 Sheet Format Guide</div></div>
+          <div class="card-body" style="padding:14px 16px;">
+            <div style="margin-bottom:12px;font-size:0.78rem;font-weight:700;color:var(--muted);">Required Column Order:</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--blue-l);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--blue);">A</div><div><div style="font-size:0.75rem;font-weight:700;">Product Name</div><div style="font-size:0.65rem;color:var(--muted);">Full product name</div></div></div>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--blue-l);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--blue);">B</div><div><div style="font-size:0.75rem;font-weight:700;">SKU / Product ID</div><div style="font-size:0.65rem;color:var(--muted);">Must match Products page</div></div></div>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--blue-l);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--blue);">C</div><div><div style="font-size:0.75rem;font-weight:700;">Unit Price (£)</div><div style="font-size:0.65rem;color:var(--muted);">Numbers only, no £ symbol</div></div></div>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--blue-l);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--blue);">D</div><div><div style="font-size:0.75rem;font-weight:700;">Qty to Send</div><div style="font-size:0.65rem;color:var(--muted);">Units to dispatch</div></div></div>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--orange-l);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--orange);">E</div><div><div style="font-size:0.75rem;font-weight:700;">Units Returned</div><div style="font-size:0.65rem;color:var(--muted);">Enter 0 if no returns</div></div></div>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;background:var(--bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:var(--muted);">F</div><div><div style="font-size:0.75rem;font-weight:700;">Notes</div><div style="font-size:0.65rem;color:var(--muted);">Carrier, ASN, optional</div></div></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="width:100%" onclick="downloadTemplate()">⬇ Download Template CSV</button>
+          </div>
+        </div>
+
+        <!-- MANUAL ADD -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">✏️ Manual Add</div></div>
+          <div class="card-body" style="padding:14px 16px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="form-group"><label>Product Name</label><input type="text" id="mName" placeholder="Product name"></div>
+              <div class="form-group"><label>SKU</label><input type="text" id="mSku" placeholder="SKU ID"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label>Unit Price (£)</label><input type="number" id="mPrice" placeholder="0.00" step="0.01"></div>
+                <div class="form-group"><label>Qty to Send</label><input type="number" id="mQty" placeholder="0"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label>Returns</label><input type="number" id="mRet" placeholder="0" value="0"></div>
+                <div class="form-group"><label>Date</label><input type="date" id="mDate"></div>
+              </div>
+              <div class="form-group"><label>Notes</label><input type="text" id="mNotes" placeholder="Carrier, ASN..."></div>
+              <button class="btn btn-blue" onclick="manualAdd()" style="width:100%">➕ Add Record</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ALL RECORDS ══ -->
+  <div class="page" id="page-records">
+    <div class="page-header"><h1>📋 All Shipment Records</h1><p>Complete history — sent units, returns, net calculations</p></div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Records</div>
+        <button class="btn btn-green btn-sm" onclick="exportCSV('all')">⬇ Export CSV</button>
+      </div>
+      <div style="padding:12px 18px 0;">
+        <div class="filters">
+          <input type="text" id="recSearch" placeholder="🔍 Search product / SKU..." oninput="renderRecords()" style="flex:1;min-width:160px;">
+          <select id="recType" onchange="renderRecords()"><option value="">All Types</option><option value="sent">Sent</option><option value="return">Returns</option></select>
+          <select id="recSku" onchange="renderRecords()"><option value="">All SKUs</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap" style="padding:0 18px 18px;">
+        <table><thead><tr><th>Date</th><th>Product</th><th>SKU</th><th>Type</th><th>Units Sent</th><th>Returns</th><th>Net Units</th><th>Unit Price</th><th>Gross Sent</th><th>Returns Value</th><th>Net Revenue</th><th>Batch</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="recordsBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ LOG RETURN ══ -->
+  <div class="page" id="page-returns">
+    <div class="page-header"><h1>↩ Log Return</h1><p>Record units returned by Amazon — auto-deducted from net stock and revenue</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="main-grid">
+      <div class="card">
+        <div class="card-header"><div class="card-title">↩ Add Return Entry</div></div>
+        <div class="card-body">
+          <div class="warn-box">⚠️ <div>Returns are deducted from net units and net revenue automatically. Returns are displayed in orange with a minus (−) sign in all views.</div></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Product / SKU *</label><select id="retSku"><option value="">-- Select SKU --</option></select></div>
+            <div class="form-group"><label>Return Date *</label><input type="date" id="retDate"></div>
+            <div class="form-group"><label>Units Returned *</label><input type="number" id="retQty" placeholder="e.g. 5" min="1"></div>
+            <div class="form-group"><label>Unit Price (£)</label><input type="number" id="retPrice" placeholder="Auto-fills from SKU" step="0.01"></div>
+            <div class="form-group fg-full"><label>Return Notes</label><input type="text" id="retNotes" placeholder="e.g. Damaged, Customer rejection, Overstock..."></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-orange" onclick="logReturn()">↩ Log Return</button>
+            <button class="btn btn-ghost" onclick="clearReturnForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Returns Summary</div></div>
+        <div class="tbl-wrap" style="max-height:400px;overflow-y:auto;">
+          <table><thead><tr><th>Date</th><th>Product</th><th>SKU</th><th>Units</th><th>Return Value</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="retBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PRODUCTS ══ -->
+  <div class="page" id="page-products">
+    <div class="page-header"><h1>🗂 Products</h1><p>Product catalogue — net stock, sent totals, returns per SKU</p></div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Product Overview</div>
+        <button class="btn btn-blue btn-sm" onclick="openAddProduct()">➕ Add Product</button>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Product Name</th><th>SKU</th><th>Unit Price</th><th>Total Sent</th><th>Total Returns</th><th>Net at Amazon</th><th>Gross Revenue</th><th>Returns Value</th><th>Net Revenue</th></tr></thead>
+        <tbody id="prodBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ REVENUE ══ -->
+  <div class="page" id="page-revenue">
+    <div class="page-header"><h1>💰 Revenue Summary</h1><p>Gross sent, returns deduction, net revenue — per product and overall</p></div>
+    <div class="rev-grid">
+      <div class="rev-card"><div class="rev-label">Gross Sent (All Time)</div><div class="rev-value sv-blue" id="revGross">£0</div><div class="rev-sub">Total sent × unit price</div></div>
+      <div class="rev-card"><div class="rev-label">Returns Deduction</div><div class="rev-value sv-orange" id="revRetVal">−£0</div><div class="rev-sub">Returned units × price</div></div>
+      <div class="rev-card"><div class="rev-label">Net Revenue</div><div class="rev-value sv-green" id="revNet">£0</div><div class="rev-sub">Gross − Returns</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Revenue by Product</div></div>
+      <div class="tbl-wrap" style="padding:0 18px 18px;">
+        <table><thead><tr><th>Product</th><th>SKU</th><th>Units Sent</th><th>Returns</th><th>Net Units</th><th>Unit Price</th><th>Gross Amount</th><th>Returns Value</th><th>Net Revenue</th><th>% of Net Total</th></tr></thead>
+        <tbody id="revBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WEEKLY ══ -->
+  <div class="page" id="page-weekly">
+    <div class="page-header"><h1>📅 Weekly View</h1><p>Each week as a separate card — sent, returns, net — date-wise sorted</p></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="wkFilter" onchange="renderWeekly()" style="padding:6px 10px;font-size:0.76rem;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;outline:none;"><option value="">All Weeks</option></select>
+      <button class="btn btn-green btn-sm" onclick="exportCSV('weekly')">⬇ Export Weekly CSV</button>
+    </div>
+    <div id="wkGrouped"></div>
+  </div>
+
+  <!-- ══ MONTHLY ══ -->
+  <div class="page" id="page-monthly">
+    <div class="page-header"><h1>🗓 Monthly View</h1><p>Each month as a separate card — sent, returns, net — date-wise sorted</p></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="moFilter" onchange="renderMonthly()" style="padding:6px 10px;font-size:0.76rem;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;outline:none;"><option value="">All Months</option></select>
+      <button class="btn btn-blue btn-sm" onclick="exportCSV('monthly')">⬇ Export Monthly CSV</button>
+    </div>
+    <div id="moGrouped"></div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-overlay" id="apModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header"><div style="font-size:0.88rem;font-weight:700;">➕ Add New Product</div><button class="close-btn" onclick="closeAP()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Product Name *</label><input type="text" id="apName" placeholder="e.g. Wireless Earbuds Pro"></div>
+        <div class="form-group"><label>SKU *</label><input type="text" id="apSku" placeholder="e.g. WE-001-UK"></div>
+        <div class="form-group"><label>Unit Price (£) *</label><input type="number" id="apPrice" placeholder="29.99" step="0.01"></div>
+        <div class="form-group"><label>Emoji Icon</label><input type="text" id="apIcon" placeholder="🎧"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-blue" onclick="saveProduct()">✅ Save</button>
+        <button class="btn btn-ghost" onclick="closeAP()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ═══════════ STATE ═══════════
+let products = [
+  {id:1, name:"LED Strip Lights 5M RGB", sku:"LS-RGB-5M", price:14.99, icon:"💡"},
+  {id:2, name:"Smart Bulb E27 WiFi",     sku:"SB-E27-WF", price:12.99, icon:"💡"},
+  {id:3, name:"Desk LED Lamp Touch",     sku:"DL-TCH-UK", price:19.99, icon:"🔦"},
+  {id:4, name:"Ceiling Light Panel 12W", sku:"CL-12W-UK", price:24.99, icon:"💡"},
+  {id:5, name:"USB Charging Hub 6-Port", sku:"UC-HUB-6P",  price:18.99, icon:"🔌"},
+  {id:6, name:"Wireless Charger Pad 15W",sku:"WC-15W-UK", price:16.99, icon:"⚡"},
+  {id:7, name:"Bluetooth Speaker Mini",  sku:"BS-MIN-UK", price:22.99, icon:"🔊"},
+  {id:8, name:"Smart Plug WiFi UK",      sku:"SP-WFI-UK", price:9.99,  icon:"🔌"},
+];
+
+// records: {id, date, type:'sent'|'return', productId, sku, name, price, qty, notes, batch}
+let records = [
+  {id:1, date:"2025-01-06", type:"sent", sku:"LS-RGB-5M", name:"LED Strip Lights 5M RGB",  price:14.99, qty:120, returns:4, notes:"DHL Express",  batch:"BATCH-W02"},
+  {id:2, date:"2025-01-08", type:"sent", sku:"SB-E27-WF", name:"Smart Bulb E27 WiFi",      price:12.99, qty:200, returns:0, notes:"Royal Mail",   batch:"BATCH-W02"},
+  {id:3, date:"2025-01-13", type:"sent", sku:"UC-HUB-6P", name:"USB Charging Hub 6-Port",  price:18.99, qty:80,  returns:3, notes:"FedEx",         batch:"BATCH-W03"},
+  {id:4, date:"2025-01-20", type:"sent", sku:"WC-15W-UK", name:"Wireless Charger Pad 15W", price:16.99, qty:60,  returns:2, notes:"DHL",            batch:"BATCH-W04"},
+  {id:5, date:"2025-02-03", type:"sent", sku:"DL-TCH-UK", name:"Desk LED Lamp Touch",      price:19.99, qty:90,  returns:0, notes:"",               batch:"BATCH-W06"},
+  {id:6, date:"2025-02-10", type:"sent", sku:"CL-12W-UK", name:"Ceiling Light Panel 12W",  price:24.99, qty:50,  returns:5, notes:"FedEx",          batch:"BATCH-W07"},
+  {id:7, date:"2025-02-17", type:"sent", sku:"SP-WFI-UK", name:"Smart Plug WiFi UK",       price:9.99,  qty:150, returns:1, notes:"Royal Mail",     batch:"BATCH-W08"},
+  {id:8, date:"2025-03-03", type:"sent", sku:"BS-MIN-UK", name:"Bluetooth Speaker Mini",   price:22.99, qty:40,  returns:0, notes:"DHL",            batch:"BATCH-W10"},
+  {id:9, date:"2025-03-10", type:"sent", sku:"LS-RGB-5M", name:"LED Strip Lights 5M RGB",  price:14.99, qty:100, returns:2, notes:"",               batch:"BATCH-W11"},
+];
+let nextId = 10;
+let uploadRows = [];
+
+// ═══════════ HELPERS ═══════════
+const fmt  = n => `£${parseFloat(n||0).toFixed(2)}`;
+const fN   = n => (n||0).toLocaleString();
+const wkN  = d => { const dt=new Date(d), s=new Date(dt.getFullYear(),0,1); return Math.ceil(((dt-s)/86400000+s.getDay()+1)/7); };
+const mkN  = d => { const dt=new Date(d); return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`; };
+const mlbl = k => { const [y,m]=k.split('-'); return new Date(y,m-1,1).toLocaleString('en-GB',{month:'long',year:'numeric'}); };
+const dlbl = d => new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+const gp   = sku => products.find(p=>p.sku===sku);
+const statusBadge = s => {
+  const m = {"sent":"b-blue","return":"b-orange"};
+  const l = {"sent":"📤 Sent","return":"↩ Return"};
+  return `<span class="badge ${m[s]||'b-gray'}">${l[s]||s}</span>`;
+};
+
+// Per-record net calc
+const netUnits   = r => (r.qty||0) - (r.returns||0);
+const grossAmt   = r => (r.qty||0)   * (r.price||0);
+const retVal     = r => (r.returns||0) * (r.price||0);
+const netRevenue = r => grossAmt(r) - retVal(r);
+
+// ═══════════ INIT ═══════════
+function init() {
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('uploadDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('retDate').value = new Date().toISOString().split('T')[0];
+  updAll();
+}
+
+function updAll() {
+  updStats(); renderRecent(); renderRecords(); renderProducts(); renderRevenue();
+  renderWeekly(); renderMonthly(); fillWkFilter(); fillMoFilter(); fillSkuFilter(); fillRetSkuDropdown();
+  document.getElementById('sbCount').textContent = records.length;
+  document.getElementById('sbRetCount').textContent = records.reduce((a,r)=>a+(r.returns||0),0);
+}
+
+// ═══════════ NAVIGATION ═══════════
+const pageTitles = {
+  dashboard:'🏠 Dashboard Overview', upload:'📂 Upload Product Sheet',
+  records:'📋 All Records', returns:'↩ Log Return',
+  products:'🗂 Products', revenue:'💰 Revenue Summary',
+  weekly:'📅 Weekly View', monthly:'🗓 Monthly View'
+};
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelector(`.sb-item[onclick="showPage('${p}')"]`)?.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageTitles[p]||'';
+}
+
+// ═══════════ STATS ═══════════
+function updStats() {
+  const totalSent = records.reduce((a,r)=>a+(r.qty||0),0);
+  const totalRet  = records.reduce((a,r)=>a+(r.returns||0),0);
+  const netU      = totalSent - totalRet;
+  const netR      = records.reduce((a,r)=>a+netRevenue(r),0);
+  document.getElementById('dTotalSent').textContent = fN(totalSent);
+  document.getElementById('dTotalRet').textContent  = fN(totalRet);
+  document.getElementById('dNetUnits').textContent  = fN(netU);
+  document.getElementById('dNetRev').textContent    = fmt(netR);
+}
+
+// ═══════════ RECENT ═══════════
+function renderRecent() {
+  const data = [...records].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+  document.getElementById('recentBody').innerHTML = data.map(r=>`<tr>
+    <td>${dlbl(r.date)}</td>
+    <td><strong>${r.name}</strong></td>
+    <td class="mono" style="color:var(--blue)">${r.sku}</td>
+    <td><strong>${fN(r.qty)}</strong></td>
+    <td class="${r.returns>0?'minus-val':''}" style="${r.returns===0?'color:var(--light)':''}">${r.returns>0?fN(r.returns):'—'}</td>
+    <td class="net-val">${fN(netUnits(r))}</td>
+    <td style="color:var(--green);font-weight:700">${fmt(netRevenue(r))}</td>
+    <td>${statusBadge(r.type)}</td>
+  </tr>`).join('') || noRows(8,'No records yet da — upload a sheet!');
+}
+
+// ═══════════ RECORDS ═══════════
+function fillSkuFilter() {
+  const s = document.getElementById('recSku');
+  const cur = s.value;
+  const skus = [...new Set(records.map(r=>r.sku))].sort();
+  s.innerHTML = '<option value="">All SKUs</option>' + skus.map(sk=>`<option value="${sk}">${sk}</option>`).join('');
+  if(cur) s.value=cur;
+}
+function renderRecords() {
+  const sf  = document.getElementById('recSearch').value.toLowerCase();
+  const tf  = document.getElementById('recType').value;
+  const skf = document.getElementById('recSku').value;
+  const data = records.filter(r => {
+    const ms = !sf || r.name.toLowerCase().includes(sf) || r.sku.toLowerCase().includes(sf);
+    const mt = !tf || r.type===tf;
+    const mk = !skf || r.sku===skf;
+    return ms && mt && mk;
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('recordsBody').innerHTML = data.map(r=>`<tr>
+    <td>${dlbl(r.date)}</td>
+    <td><strong>${r.name}</strong></td>
+    <td class="mono" style="color:var(--blue)">${r.sku}</td>
+    <td>${statusBadge(r.type)}</td>
+    <td><strong>${fN(r.qty)}</strong></td>
+    <td class="${r.returns>0?'minus-val':''}" style="${r.returns===0?'color:var(--light)':''}">${r.returns>0?fN(r.returns):'—'}</td>
+    <td class="net-val">${fN(netUnits(r))}</td>
+    <td>${fmt(r.price)}</td>
+    <td style="color:var(--blue)">${fmt(grossAmt(r))}</td>
+    <td class="${r.returns>0?'minus-val':''}">${r.returns>0?fmt(retVal(r)):'—'}</td>
+    <td style="color:var(--green);font-weight:700">${fmt(netRevenue(r))}</td>
+    <td style="font-size:0.68rem;color:var(--muted)">${r.batch||'—'}</td>
+    <td style="font-size:0.68rem;color:var(--muted)">${r.notes||'—'}</td>
+    <td><button class="btn-del" onclick="delRecord(${r.id})">✕</button></td>
+  </tr>`).join('') || noRows(14,'No records found');
+}
+function delRecord(id) {
+  records = records.filter(r=>r.id!==id);
+  updAll(); showToast('🗑 Deleted','red');
+}
+
+// ═══════════ PRODUCTS ═══════════
+function renderProducts() {
+  const tbody = document.getElementById('prodBody');
+  const stats = {};
+  records.forEach(r=>{
+    if(!stats[r.sku]) stats[r.sku]={sent:0,ret:0,gross:0,retV:0};
+    stats[r.sku].sent  += r.qty||0;
+    stats[r.sku].ret   += r.returns||0;
+    stats[r.sku].gross += grossAmt(r);
+    stats[r.sku].retV  += retVal(r);
+  });
+  tbody.innerHTML = products.map(p=>{
+    const s = stats[p.sku]||{sent:0,ret:0,gross:0,retV:0};
+    const net = s.sent - s.ret;
+    const netR = s.gross - s.retV;
+    const sc = net<50?'sv-orange':net<150?'':'sv-green';
+    return `<tr>
+      <td>${p.icon} <strong>${p.name}</strong></td>
+      <td class="mono" style="color:var(--blue)">${p.sku}</td>
+      <td>${fmt(p.price)}</td>
+      <td><strong>${fN(s.sent)}</strong></td>
+      <td class="${s.ret>0?'minus-val':''}" style="${s.ret===0?'color:var(--light)':''}">${s.ret>0?fN(s.ret):'—'}</td>
+      <td class="${sc}" style="font-weight:800">${fN(net)}</td>
+      <td style="color:var(--blue)">${fmt(s.gross)}</td>
+      <td class="${s.ret>0?'minus-val':''}">${s.ret>0?fmt(s.retV):'—'}</td>
+      <td style="color:var(--green);font-weight:700">${fmt(netR)}</td>
+    </tr>`;
+  }).join('') || noRows(9,'No products yet');
+}
+
+// ═══════════ REVENUE ═══════════
+function renderRevenue() {
+  const gross  = records.reduce((a,r)=>a+grossAmt(r),0);
+  const retV   = records.reduce((a,r)=>a+retVal(r),0);
+  const net    = gross - retV;
+  document.getElementById('revGross').textContent  = fmt(gross);
+  document.getElementById('revRetVal').textContent = `−${fmt(retV)}`;
+  document.getElementById('revNet').textContent    = fmt(net);
+
+  const stats = {};
+  records.forEach(r=>{
+    if(!stats[r.sku]) stats[r.sku]={name:r.name,price:r.price,sent:0,ret:0,gross:0,retV:0};
+    stats[r.sku].sent  += r.qty||0;
+    stats[r.sku].ret   += r.returns||0;
+    stats[r.sku].gross += grossAmt(r);
+    stats[r.sku].retV  += retVal(r);
+  });
+  const rows = Object.entries(stats).sort((a,b)=>(b[1].gross-b[1].retV)-(a[1].gross-a[1].retV));
+  document.getElementById('revBody').innerHTML = rows.map(([sku,s])=>{
+    const netUnitsP = s.sent-s.ret;
+    const netRevP   = s.gross-s.retV;
+    const pct       = net>0?((netRevP/net)*100).toFixed(1):'0.0';
+    return `<tr>
+      <td><strong>${s.name}</strong></td>
+      <td class="mono" style="color:var(--blue)">${sku}</td>
+      <td><strong>${fN(s.sent)}</strong></td>
+      <td class="${s.ret>0?'minus-val':''}">${s.ret>0?fN(s.ret):'—'}</td>
+      <td class="net-val">${fN(netUnitsP)}</td>
+      <td>${fmt(s.price)}</td>
+      <td style="color:var(--blue)">${fmt(s.gross)}</td>
+      <td class="${s.ret>0?'minus-val':''}">${s.ret>0?fmt(s.retV):'—'}</td>
+      <td style="color:var(--green);font-weight:700">${fmt(netRevP)}</td>
+      <td><div style="display:flex;align-items:center;gap:7px;"><div style="background:var(--bg);border-radius:4px;height:7px;width:100px;overflow:hidden;border:1px solid var(--border);"><div style="background:var(--blue);height:100%;width:${pct}%;border-radius:4px;"></div></div><span style="font-size:0.68rem;color:var(--muted)">${pct}%</span></div></td>
+    </tr>`;
+  }).join('') || noRows(10,'No revenue data');
+}
+
+// ═══════════ WEEKLY ═══════════
+function fillWkFilter() {
+  const s=document.getElementById('wkFilter'),cv=s.value;
+  const wks=[...new Set(records.map(r=>`${new Date(r.date).getFullYear()}-W${String(wkN(r.date)).padStart(2,'0')}`))].sort().reverse();
+  s.innerHTML='<option value="">All Weeks</option>'+wks.map(w=>{const[y,wn]=w.split('-W');return`<option value="${w}">Week ${wn} — ${y}</option>`;}).join('');
+  if(cv) s.value=cv;
+}
+function renderWeekly() {
+  const f=document.getElementById('wkFilter').value;
+  const grouped={};
+  records.forEach(r=>{
+    const yr=new Date(r.date).getFullYear();
+    const wnum=String(wkN(r.date)).padStart(2,'0');
+    const key=`${yr}-W${wnum}`;
+    if(f&&key!==f) return;
+    if(!grouped[key]) grouped[key]={key,yr,wnum,rows:[]};
+    grouped[key].rows.push(r);
+  });
+  const weeks=Object.values(grouped).sort((a,b)=>b.key.localeCompare(a.key));
+  if(!weeks.length){document.getElementById('wkGrouped').innerHTML=`<div style="text-align:center;padding:3rem;color:var(--muted);background:var(--white);border-radius:var(--r);border:1px solid var(--border);">No records found</div>`;return;}
+  document.getElementById('wkGrouped').innerHTML=weeks.map(w=>{
+    const rows=[...w.rows].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const tSent=rows.reduce((a,r)=>a+(r.qty||0),0);
+    const tRet =rows.reduce((a,r)=>a+(r.returns||0),0);
+    const tNet =tSent-tRet;
+    const tGross=rows.reduce((a,r)=>a+grossAmt(r),0);
+    const tRetV =rows.reduce((a,r)=>a+retVal(r),0);
+    const tNetR =tGross-tRetV;
+    const dates=rows.map(r=>new Date(r.date));
+    const minD=new Date(Math.min(...dates)),maxD=new Date(Math.max(...dates));
+    const dr=minD.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' – '+maxD.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="group-card">
+      <div class="group-header group-header-blue">
+        <div class="group-meta">
+          <span class="badge b-blue" style="font-size:0.76rem;padding:3px 11px;">📅 Week ${w.wnum} — ${w.yr}</span>
+          <span style="font-size:0.73rem;color:var(--muted);">🗓 ${dr}</span>
+          <span style="font-size:0.73rem;color:var(--muted);">📦 ${rows.length} shipment${rows.length>1?'s':''}</span>
+        </div>
+        <div class="group-stats">
+          <div class="gs-item"><div class="gs-label">Sent</div><div class="gs-val sv-blue">${fN(tSent)}</div></div>
+          <div class="gs-item"><div class="gs-label">Returns</div><div class="gs-val sv-orange">${tRet>0?fN(tRet):'—'}</div></div>
+          <div class="gs-item"><div class="gs-label">Net Units</div><div class="gs-val sv-green">${fN(tNet)}</div></div>
+          <div class="gs-item"><div class="gs-label">Net Revenue</div><div class="gs-val sv-green">${fmt(tNetR)}</div></div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Date</th><th>Product</th><th>SKU</th><th>Units Sent</th><th>Returns</th><th>Net Units</th><th>Unit Price</th><th>Gross Sent</th><th>Returns Val</th><th>Net Revenue</th><th>Notes</th></tr></thead>
+        <tbody>
+          ${rows.map(r=>`<tr>
+            <td><strong>${dlbl(r.date)}</strong></td>
+            <td>${(gp(r.sku)?.icon||'')} <strong>${r.name}</strong></td>
+            <td class="mono" style="color:var(--blue)">${r.sku}</td>
+            <td><strong>${fN(r.qty)}</strong></td>
+            <td class="${r.returns>0?'minus-val':''}" style="${r.returns===0?'color:var(--light)':''}">${r.returns>0?fN(r.returns):'—'}</td>
+            <td class="net-val">${fN(netUnits(r))}</td>
+            <td>${fmt(r.price)}</td>
+            <td style="color:var(--blue)">${fmt(grossAmt(r))}</td>
+            <td class="${r.returns>0?'minus-val':''}">${r.returns>0?fmt(retVal(r)):'—'}</td>
+            <td style="color:var(--green);font-weight:700">${fmt(netRevenue(r))}</td>
+            <td style="font-size:0.68rem;color:var(--muted)">${r.notes||'—'}</td>
+          </tr>`).join('')}
+          <tr class="tr-total">
+            <td colspan="3" style="color:var(--muted);font-size:0.72rem;">WEEK TOTAL</td>
+            <td style="color:var(--blue)">${fN(tSent)}</td>
+            <td class="${tRet>0?'minus-val':''}">${tRet>0?fN(tRet):'—'}</td>
+            <td class="net-val">${fN(tNet)}</td>
+            <td>—</td>
+            <td style="color:var(--blue)">${fmt(tGross)}</td>
+            <td class="${tRet>0?'minus-val':''}">${tRet>0?fmt(tRetV):'—'}</td>
+            <td style="color:var(--green);font-weight:800">${fmt(tNetR)}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════ MONTHLY ═══════════
+function fillMoFilter() {
+  const s=document.getElementById('moFilter'),cv=s.value;
+  const months=[...new Set(records.map(r=>mkN(r.date)))].sort().reverse();
+  s.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${mlbl(m)}</option>`).join('');
+  if(cv) s.value=cv;
+}
+function renderMonthly() {
+  const f=document.getElementById('moFilter').value;
+  const grouped={};
+  records.forEach(r=>{
+    const key=mkN(r.date);
+    if(f&&key!==f) return;
+    if(!grouped[key]) grouped[key]={key,rows:[]};
+    grouped[key].rows.push(r);
+  });
+  const months=Object.values(grouped).sort((a,b)=>b.key.localeCompare(a.key));
+  if(!months.length){document.getElementById('moGrouped').innerHTML=`<div style="text-align:center;padding:3rem;color:var(--muted);background:var(--white);border-radius:var(--r);border:1px solid var(--border);">No records found</div>`;return;}
+  document.getElementById('moGrouped').innerHTML=months.map(m=>{
+    const rows=[...m.rows].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const tSent=rows.reduce((a,r)=>a+(r.qty||0),0);
+    const tRet =rows.reduce((a,r)=>a+(r.returns||0),0);
+    const tNet =tSent-tRet;
+    const tGross=rows.reduce((a,r)=>a+grossAmt(r),0);
+    const tRetV=rows.reduce((a,r)=>a+retVal(r),0);
+    const tNetR=tGross-tRetV;
+    const skuCount=[...new Set(rows.map(r=>r.sku))].length;
+    return `<div class="group-card">
+      <div class="group-header group-header-orange">
+        <div class="group-meta">
+          <span class="badge b-orange" style="font-size:0.76rem;padding:3px 11px;">🗓 ${mlbl(m.key)}</span>
+          <span style="font-size:0.73rem;color:var(--muted);">📦 ${rows.length} shipment${rows.length>1?'s':''}</span>
+          <span style="font-size:0.73rem;color:var(--muted);">🗂 ${skuCount} product${skuCount>1?'s':''}</span>
+        </div>
+        <div class="group-stats">
+          <div class="gs-item"><div class="gs-label">Sent</div><div class="gs-val sv-blue">${fN(tSent)}</div></div>
+          <div class="gs-item"><div class="gs-label">Returns</div><div class="gs-val sv-orange">${tRet>0?fN(tRet):'—'}</div></div>
+          <div class="gs-item"><div class="gs-label">Net Units</div><div class="gs-val sv-green">${fN(tNet)}</div></div>
+          <div class="gs-item"><div class="gs-label">Net Revenue</div><div class="gs-val sv-green">${fmt(tNetR)}</div></div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Date</th><th>Week</th><th>Product</th><th>SKU</th><th>Units Sent</th><th>Returns</th><th>Net Units</th><th>Unit Price</th><th>Gross Sent</th><th>Returns Val</th><th>Net Revenue</th><th>Notes</th></tr></thead>
+        <tbody>
+          ${rows.map(r=>`<tr>
+            <td><strong>${dlbl(r.date)}</strong></td>
+            <td><span class="badge b-blue">W${wkN(r.date)}</span></td>
+            <td>${(gp(r.sku)?.icon||'')} <strong>${r.name}</strong></td>
+            <td class="mono" style="color:var(--blue)">${r.sku}</td>
+            <td><strong>${fN(r.qty)}</strong></td>
+            <td class="${r.returns>0?'minus-val':''}" style="${r.returns===0?'color:var(--light)':''}">${r.returns>0?fN(r.returns):'—'}</td>
+            <td class="net-val">${fN(netUnits(r))}</td>
+            <td>${fmt(r.price)}</td>
+            <td style="color:var(--blue)">${fmt(grossAmt(r))}</td>
+            <td class="${r.returns>0?'minus-val':''}">${r.returns>0?fmt(retVal(r)):'—'}</td>
+            <td style="color:var(--green);font-weight:700">${fmt(netRevenue(r))}</td>
+            <td style="font-size:0.68rem;color:var(--muted)">${r.notes||'—'}</td>
+          </tr>`).join('')}
+          <tr class="tr-total">
+            <td colspan="4" style="color:var(--muted);font-size:0.72rem;">MONTH TOTAL</td>
+            <td style="color:var(--blue)">${fN(tSent)}</td>
+            <td class="${tRet>0?'minus-val':''}">${tRet>0?fN(tRet):'—'}</td>
+            <td class="net-val">${fN(tNet)}</td>
+            <td>—</td>
+            <td style="color:var(--blue)">${fmt(tGross)}</td>
+            <td class="${tRet>0?'minus-val':''}">${tRet>0?fmt(tRetV):'—'}</td>
+            <td style="color:var(--green);font-weight:800">${fmt(tNetR)}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════ FILE UPLOAD ═══════════
+function dragOver(e){e.preventDefault();document.getElementById('uploadZone').classList.add('dragover');}
+function dragLeave(){document.getElementById('uploadZone').classList.remove('dragover');}
+function dropFile(e){e.preventDefault();dragLeave();const f=e.dataTransfer.files[0];if(f) processFile(f);}
+function handleFile(e){const f=e.target.files[0];if(f) processFile(f);}
+
+function processFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('uploadTitle').textContent = `📄 ${file.name}`;
+  if(ext==='csv') {
+    const reader=new FileReader();
+    reader.onload=e=>{ parseCSV(e.target.result); };
+    reader.readAsText(file);
+  } else if(ext==='xlsx'||ext==='xls') {
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1});
+      parseRows(data);
+    };
+    reader.readAsBinaryString(file);
+  } else {
+    showToast('❌ Only .xlsx, .xls or .csv supported da!','red');
+  }
+}
+
+function parseCSV(text) {
+  const lines=text.trim().split('\n').map(l=>l.split(',').map(c=>c.replace(/"/g,'').trim()));
+  parseRows(lines);
+}
+
+function parseRows(rows) {
+  // Skip header row if first cell looks like text
+  let start = 0;
+  if(rows[0] && isNaN(parseFloat(rows[0][2]))) start = 1;
+  uploadRows = [];
+  const errors = [];
+  for(let i=start;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||!r[0]||!r[1]) continue;
+    const name  = String(r[0]||'').trim();
+    const sku   = String(r[1]||'').trim();
+    const price = parseFloat(r[2])||0;
+    const qty   = parseInt(r[3])||0;
+    const ret   = parseInt(r[4])||0;
+    const notes = String(r[5]||'').trim();
+    if(!name||!sku||qty<=0){ errors.push(`Row ${i+1}: Missing data`); continue; }
+    uploadRows.push({name,sku,price,qty,returns:ret,notes});
+  }
+  if(errors.length) showToast(`⚠️ ${errors.length} row(s) skipped`,'orange');
+  showPreview();
+}
+
+function showPreview() {
+  if(!uploadRows.length){showToast('❌ No valid rows found in file','red');return;}
+  document.getElementById('previewSection').style.display='block';
+  document.getElementById('confirmCard').style.display='block';
+  document.getElementById('previewCount').textContent=uploadRows.length;
+  document.getElementById('previewBody').innerHTML=uploadRows.map((r,i)=>`<tr>
+    <td style="color:var(--muted)">${i+1}</td>
+    <td><strong>${r.name}</strong></td>
+    <td class="mono" style="color:var(--blue)">${r.sku}</td>
+    <td>${fmt(r.price)}</td>
+    <td><strong>${fN(r.qty)}</strong></td>
+    <td class="${r.returns>0?'minus-val':''}" style="${r.returns===0?'color:var(--light)':''}">${r.returns>0?fN(r.returns):'—'}</td>
+    <td class="net-val">${fN(r.qty-r.returns)}</td>
+    <td style="font-size:0.68rem;color:var(--muted)">${r.notes||'—'}</td>
+    <td><button class="btn-del" onclick="removeUploadRow(${i})">✕</button></td>
+  </tr>`).join('');
+  const tSent=uploadRows.reduce((a,r)=>a+r.qty,0);
+  const tRet=uploadRows.reduce((a,r)=>a+r.returns,0);
+  const tGross=uploadRows.reduce((a,r)=>a+r.qty*r.price,0);
+  const tRetV=uploadRows.reduce((a,r)=>a+r.returns*r.price,0);
+  document.getElementById('previewTotals').innerHTML=`
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Products</div><div style="font-size:1rem;font-weight:800;color:var(--blue)">${uploadRows.length}</div></div>
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Total Units Sent</div><div style="font-size:1rem;font-weight:800;color:var(--blue)">${fN(tSent)}</div></div>
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Total Returns</div><div style="font-size:1rem;font-weight:800;color:var(--orange)">${fN(tRet)}</div></div>
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Net Units</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${fN(tSent-tRet)}</div></div>
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Gross Amount</div><div style="font-size:1rem;font-weight:800;color:var(--blue)">${fmt(tGross)}</div></div>
+    <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;">Net Revenue</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${fmt(tGross-tRetV)}</div></div>
+  `;
+}
+
+function removeUploadRow(i){uploadRows.splice(i,1);if(uploadRows.length) showPreview();else clearUpload();}
+function clearUpload(){
+  uploadRows=[];
+  document.getElementById('previewSection').style.display='none';
+  document.getElementById('confirmCard').style.display='none';
+  document.getElementById('uploadTitle').textContent='Click to upload or drag & drop';
+  document.getElementById('fileInput').value='';
+}
+
+function confirmShipment() {
+  const date  = document.getElementById('uploadDate').value;
+  const batch = document.getElementById('uploadBatch').value.trim() || `BATCH-${date}`;
+  if(!date){showToast('❌ Select shipment date da!','red');return;}
+  if(!uploadRows.length){showToast('❌ No rows to confirm','red');return;}
+  uploadRows.forEach(r=>{
+    // auto-add product if new
+    if(!products.find(p=>p.sku===r.sku)){
+      products.push({id:Date.now()+Math.random(),name:r.name,sku:r.sku,price:r.price,icon:'📦'});
+    }
+    records.push({id:nextId++, date, type:'sent', sku:r.sku, name:r.name, price:r.price, qty:r.qty, returns:r.returns, notes:r.notes, batch});
+  });
+  updAll();
+  clearUpload();
+  showToast(`✅ ${uploadRows.length||'Batch'} products logged successfully!`,'green');
+  uploadRows=[];
+}
+
+// ═══════════ MANUAL ADD ═══════════
+function manualAdd(){
+  const name=document.getElementById('mName').value.trim();
+  const sku =document.getElementById('mSku').value.trim();
+  const price=parseFloat(document.getElementById('mPrice').value)||0;
+  const qty =parseInt(document.getElementById('mQty').value)||0;
+  const ret =parseInt(document.getElementById('mRet').value)||0;
+  const date=document.getElementById('mDate').value;
+  const notes=document.getElementById('mNotes').value.trim();
+  if(!name||!sku||!qty||!date){showToast('❌ Fill all required fields da!','red');return;}
+  if(!products.find(p=>p.sku===sku)) products.push({id:Date.now(),name,sku,price,icon:'📦'});
+  records.push({id:nextId++,date,type:'sent',sku,name,price,qty,returns:ret,notes,batch:'MANUAL'});
+  updAll();
+  ['mName','mSku','mPrice','mQty','mNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mRet').value='0';
+  showToast('✅ Record added!','green');
+}
+
+// ═══════════ RETURNS ═══════════
+function fillRetSkuDropdown(){
+  const s=document.getElementById('retSku');
+  const cur=s.value;
+  s.innerHTML='<option value="">-- Select SKU --</option>';
+  products.forEach(p=>{ s.innerHTML+=`<option value="${p.sku}">${p.sku} — ${p.name}</option>`; });
+  if(cur) s.value=cur;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('retSku').addEventListener('change',function(){
+    const p=products.find(pr=>pr.sku===this.value);
+    if(p) document.getElementById('retPrice').value=p.price;
+  });
+});
+
+function logReturn(){
+  const sku =document.getElementById('retSku').value;
+  const date=document.getElementById('retDate').value;
+  const qty =parseInt(document.getElementById('retQty').value)||0;
+  const price=parseFloat(document.getElementById('retPrice').value)||0;
+  const notes=document.getElementById('retNotes').value.trim();
+  if(!sku||!date||!qty){showToast('❌ Fill all fields da!','red');return;}
+  const p=products.find(pr=>pr.sku===sku);
+  // Add a separate return record
+  records.push({id:nextId++,date,type:'return',sku,name:p?.name||sku,price:price||p?.price||0,qty:0,returns:qty,notes,batch:'RETURN'});
+  updAll(); clearReturnForm();
+  showToast('↩ Return logged!','orange');
+}
+
+function renderRetBody(){
+  const rets=records.filter(r=>r.type==='return'||r.returns>0).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('retBody').innerHTML=rets.map(r=>`<tr class="tr-return">
+    <td>${dlbl(r.date)}</td>
+    <td><strong>${r.name}</strong></td>
+    <td class="mono" style="color:var(--orange)">${r.sku}</td>
+    <td class="minus-val">${fN(r.returns||r.qty)}</td>
+    <td class="minus-val">${fmt((r.returns||r.qty)*r.price)}</td>
+    <td style="font-size:0.68rem;color:var(--muted)">${r.notes||'—'}</td>
+    <td><button class="btn-del" onclick="delRecord(${r.id})">✕</button></td>
+  </tr>`).join('')||noRows(7,'No returns logged yet');
+}
+
+function clearReturnForm(){
+  ['retSku','retQty','retPrice','retNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('retDate').value=new Date().toISOString().split('T')[0];
+  renderRetBody();
+}
+
+// ═══════════ PRODUCTS MODAL ═══════════
+function openAddProduct(){document.getElementById('apModal').classList.add('open');}
+function closeAP(){document.getElementById('apModal').classList.remove('open');}
+function saveProduct(){
+  const name=document.getElementById('apName').value.trim();
+  const sku =document.getElementById('apSku').value.trim();
+  const price=parseFloat(document.getElementById('apPrice').value)||0;
+  const icon=document.getElementById('apIcon').value.trim()||'📦';
+  if(!name||!sku||!price){showToast('❌ Fill all fields da!','red');return;}
+  if(products.find(p=>p.sku===sku)){showToast('⚠️ SKU already exists!','orange');return;}
+  products.push({id:Date.now(),name,sku,price,icon});
+  updAll();closeAP();
+  ['apName','apSku','apPrice','apIcon'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅ Product added!','green');
+}
+
+// ═══════════ EXPORT CSV ═══════════
+function exportCSV(type){
+  let data=[];
+  const hdrs=['Date','Week','Product','SKU','Units Sent','Returns','Net Units','Unit Price','Gross Sent','Returns Value','Net Revenue','Batch','Notes'];
+  if(type==='weekly'){
+    data=hdrs;
+    const f=document.getElementById('wkFilter').value;
+    [...records].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>{
+      const wk=`W${wkN(r.date)}-${new Date(r.date).getFullYear()}`;
+      if(f&&wk.replace('W','').replace('-','-W')!==f) return; // simplified match
+      data.push([dlbl(r.date),`W${wkN(r.date)}`,r.name,r.sku,r.qty,r.returns||0,netUnits(r),r.price.toFixed(2),grossAmt(r).toFixed(2),retVal(r).toFixed(2),netRevenue(r).toFixed(2),r.batch||'',r.notes||'']);
+    });
+  } else if(type==='monthly'){
+    data=hdrs;
+    const f=document.getElementById('moFilter').value;
+    [...records].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>{
+      if(f&&mkN(r.date)!==f) return;
+      data.push([dlbl(r.date),`W${wkN(r.date)}`,r.name,r.sku,r.qty,r.returns||0,netUnits(r),r.price.toFixed(2),grossAmt(r).toFixed(2),retVal(r).toFixed(2),netRevenue(r).toFixed(2),r.batch||'',r.notes||'']);
+    });
+  } else {
+    data=[[...hdrs]];
+    [...records].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(r=>{
+      data.push([dlbl(r.date),`W${wkN(r.date)}`,r.name,r.sku,r.qty,r.returns||0,netUnits(r),r.price.toFixed(2),grossAmt(r).toFixed(2),retVal(r).toFixed(2),netRevenue(r).toFixed(2),r.batch||'',r.notes||'']);
+    });
+  }
+  const csv=data.map(r=>Array.isArray(r)?r.map(v=>`"${v}"`).join(','):[r].map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`vendor-${type}-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('📥 CSV Exported!','green');
+}
+
+// ═══════════ DOWNLOAD TEMPLATE ═══════════
+function downloadTemplate(){
+  const rows=[
+    '"Product Name","SKU","Unit Price","Qty to Send","Units Returned","Notes"',
+    '"Wireless Earbuds Pro","WE-001-UK","29.99","50","3","DHL Express"',
+    '"Phone Case 13 Series","PC-013-UK","8.99","80","0","Royal Mail"',
+    '"USB-C Hub 7-in-1","UH-007-UK","24.99","30","5","FedEx batch"',
+  ].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));
+  a.download='vendor-upload-template.csv';
+  a.click();
+  showToast('📥 Template downloaded!','green');
+}
+
+// ═══════════ TOAST ═══════════
+function showToast(msg,type='green'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function noRows(cols,msg){return `<tr><td colspan="${cols}" style="text-align:center;padding:2rem;color:var(--muted);">${msg}</td></tr>`;}
+
+// override updAll to also render returns
+const _updAll=updAll;
+function updAll(){
+  updStats(); renderRecent(); renderRecords(); renderProducts(); renderRevenue();
+  renderWeekly(); renderMonthly(); fillWkFilter(); fillMoFilter(); fillSkuFilter();
+  fillRetSkuDropdown(); renderRetBody();
+  document.getElementById('sbCount').textContent=records.length;
+  document.getElementById('sbRetCount').textContent=records.reduce((a,r)=>a+(r.returns||0),0);
+}
+
+init();
+</script>
+</body>
+</html>
